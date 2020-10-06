@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geo_firestore/src/geo_hash_query.dart';
-import 'package:geo_firestore/src/geo_hash.dart';
-import 'package:geo_firestore/src/geo_utils.dart';
+import 'package:geo_firestore_flutter/src/geo_hash_query.dart';
+import 'package:geo_firestore_flutter/src/geo_hash.dart';
+import 'package:geo_firestore_flutter/src/geo_utils.dart';
 
 ///
 /// A GeoFirestore instance is used to store and query geo location data in Firestore.

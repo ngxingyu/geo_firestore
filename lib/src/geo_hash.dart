@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:geo_firestore/src/base32_utils.dart';
+import 'package:geo_firestore_flutter/src/base32_utils.dart';
 
 class GeoHash {
   // The default precision of a geohash
