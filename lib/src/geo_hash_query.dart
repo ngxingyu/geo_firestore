@@ -174,7 +174,7 @@ class GeoHashQuery {
 
   Query createFirestoreQuery(GeoFirestore geoFirestore) {
     return geoFirestore.collectionReference
-        .orderBy('geoHash')
+        .orderBy('g')
         .startAt([this.startValue]).endAt([this.endValue]);
   }
 

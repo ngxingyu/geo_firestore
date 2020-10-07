@@ -21,8 +21,8 @@ class GeoFirestore {
   static GeoPoint getLocationValue(DocumentSnapshot documentSnapshot) {
     try {
       final data = documentSnapshot.data;
-      if (data != null && data['location'] != null) {
-        final GeoPoint location = data['location'];
+      if (data != null && data['l'] != null) {
+        final GeoPoint location = data['l'];
         final latitude = location.latitude;
         final longitude = location.longitude;
         if (GeoUtils.coordinatesValid(latitude, longitude)) {
@@ -45,8 +45,8 @@ class GeoFirestore {
     var geoHash = GeoHash.encode(location.latitude, location.longitude);
     // Create a Map with the fields to add
     var updates = Map<String, dynamic>();
-    updates['geoHash'] = geoHash;
-    updates['location'] = GeoPoint(location.latitude, location.longitude);
+    updates['g'] = geoHash;
+    updates['l'] = GeoPoint(location.latitude, location.longitude);
     // Update the DocumentReference with the location data
     return await docRef.setData(updates, merge: true);
   }
@@ -62,8 +62,8 @@ class GeoFirestore {
     var docRef = this.collectionReference.document(documentID);
     //Create a Map with the fields to add
     var updates = Map<String, dynamic>();
-    updates['geoHash'] = null;
-    updates['location'] = null;
+    updates['g'] = null;
+    updates['l'] = null;
     //Update the DocumentReference with the location data
     await docRef.setData(updates, merge: true);
   }
@@ -103,7 +103,7 @@ class GeoFirestore {
       snapshots.forEach((snapshot) {
         snapshot.documents.forEach((doc) {
           if (addDistance || exact) {
-            final distance = GeoUtils.distance(center, doc.data['location']);
+            final distance = GeoUtils.distance(center, doc.data['l']);
             if (exact) {
               if (distance <= radius) {
                 doc.data['distance'] = distance;
