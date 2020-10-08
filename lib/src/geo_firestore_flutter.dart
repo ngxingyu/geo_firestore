@@ -22,9 +22,9 @@ class GeoFirestore {
     try {
       final data = documentSnapshot.data;
       if (data != null && data['l'] != null) {
-        final GeoPoint location = data['l'];
-        final latitude = location.latitude;
-        final longitude = location.longitude;
+        final location = data['l'];
+        final latitude = location[0];
+        final longitude = location[1];
         if (GeoUtils.coordinatesValid(latitude, longitude)) {
           return location;
         }
@@ -46,7 +46,7 @@ class GeoFirestore {
     // Create a Map with the fields to add
     var updates = Map<String, dynamic>();
     updates['g'] = geoHash;
-    updates['l'] = GeoPoint(location.latitude, location.longitude);
+    updates['l'] = [location.latitude, location.longitude];
     // Update the DocumentReference with the location data
     return await docRef.setData(updates, merge: true);
   }
@@ -103,7 +103,8 @@ class GeoFirestore {
       snapshots.forEach((snapshot) {
         snapshot.documents.forEach((doc) {
           if (addDistance || exact) {
-            final distance = GeoUtils.distance(center, doc.data['l']);
+            final latLng = doc.data['l'];
+            final distance = GeoUtils.distance(center, GeoPoint(latLng[0], latLng[1]));
             if (exact) {
               if (distance <= radius) {
                 doc.data['distance'] = distance;
