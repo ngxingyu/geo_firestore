@@ -20,7 +20,7 @@ class GeoFirestore {
   ///
   static GeoPoint getLocationValue(DocumentSnapshot documentSnapshot) {
     try {
-      final data = documentSnapshot.data;
+      final data = documentSnapshot.data();
       if (data != null && data['l'] != null) {
         final location = data['l'];
         final latitude = location[0];
@@ -48,7 +48,7 @@ class GeoFirestore {
     updates['g'] = geoHash;
     updates['l'] = [location.latitude, location.longitude];
     // Update the DocumentReference with the location data
-    return await docRef.setData(updates, merge: true);
+    return await docRef.set(updates, SetOptions(merge: true));
   }
 
   ///
@@ -65,7 +65,7 @@ class GeoFirestore {
     updates['g'] = null;
     updates['l'] = null;
     //Update the DocumentReference with the location data
-    await docRef.setData(updates, merge: true);
+    await docRef.set(updates, SetOptions(merge: true));
   }
 
   ///
@@ -101,17 +101,17 @@ class GeoFirestore {
       List<DocumentSnapshot> documents = [];
       final snapshots = await Future.wait(futures);
       snapshots.forEach((snapshot) {
-        snapshot.documents.forEach((doc) {
+        snapshot.docs.forEach((doc) {
           if (addDistance || exact) {
-            final latLng = doc.data['l'];
+            final latLng = doc.data()['l'];
             final distance = GeoUtils.distance(center, GeoPoint(latLng[0], latLng[1]));
             if (exact) {
               if (distance <= radius) {
-                doc.data['distance'] = distance;
+                doc.data()['distance'] = distance;
                 documents.add(doc);
               }
             } else {
-              doc.data['distance'] = distance;
+              doc.data()['distance'] = distance;
               documents.add(doc);
             }
           } else {
