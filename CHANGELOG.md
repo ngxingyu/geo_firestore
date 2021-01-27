@@ -13,3 +13,7 @@
 ## 0.0.4
 
 * Update Firebase dependencies
+
+## 0.0.5
+
+* Update FireStore dependency to 0.16.0

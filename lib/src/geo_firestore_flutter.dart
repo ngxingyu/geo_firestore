@@ -41,7 +41,7 @@ class GeoFirestore {
     if (documentID == null) {
       throw FormatException('Document ID is null');
     }
-    var docRef = this.collectionReference.document(documentID);
+    var docRef = this.collectionReference.doc(documentID);
     var geoHash = GeoHash.encode(location.latitude, location.longitude);
     // Create a Map with the fields to add
     var updates = Map<String, dynamic>();
@@ -59,7 +59,7 @@ class GeoFirestore {
       throw FormatException('Document ID is null');
     }
     //Get the DocumentReference for this documentID
-    var docRef = this.collectionReference.document(documentID);
+    var docRef = this.collectionReference.doc(documentID);
     //Create a Map with the fields to add
     var updates = Map<String, dynamic>();
     updates['g'] = null;
@@ -72,7 +72,7 @@ class GeoFirestore {
   /// Gets the current location of a document for the given [documentID].
   ///
   Future<GeoPoint> getLocation(String documentID) async {
-    final snapshot = await this.collectionReference.document(documentID).get();
+    final snapshot = await this.collectionReference.doc(documentID).get();
     final geoPoint = getLocationValue(snapshot);
     return geoPoint;
   }
@@ -94,7 +94,7 @@ class GeoFirestore {
     // Get the futures from Firebase Queries generated from GeoHashQueries
     final futures = GeoHashQuery.queriesAtLocation(
             center, GeoUtils.capRadius(radius) * 1000)
-        .map((query) => query.createFirestoreQuery(this).getDocuments());
+        .map((query) => query.createFirestoreQuery(this).get());
 
     // Await the completion of all the futures
     try {
