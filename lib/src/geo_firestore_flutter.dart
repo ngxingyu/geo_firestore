@@ -9,7 +9,7 @@ import 'package:geo_firestore_flutter/src/geo_utils.dart';
 /// A GeoFirestore instance is used to store and query geo location data in Firestore.
 ///
 class GeoFirestore {
-  CollectionReference collectionReference;
+  late CollectionReference collectionReference;
 
   GeoFirestore(CollectionReference collectionReference) {
     this.collectionReference = collectionReference;
@@ -18,7 +18,7 @@ class GeoFirestore {
   ///
   /// Build a GeoPoint from a [documentSnapshot]
   ///
-  static GeoPoint getLocationValue(DocumentSnapshot documentSnapshot) {
+  static GeoPoint? getLocationValue(DocumentSnapshot documentSnapshot) {
     try {
       final data = documentSnapshot.data();
       if (data != null && data['l'] != null) {
@@ -38,9 +38,6 @@ class GeoFirestore {
 
   /// Sets the [location] of a document for the given [documentID].
   Future<dynamic> setLocation(String documentID, GeoPoint location) async {
-    if (documentID == null) {
-      throw FormatException('Document ID is null');
-    }
     var docRef = this.collectionReference.doc(documentID);
     var geoHash = GeoHash.encode(location.latitude, location.longitude);
     // Create a Map with the fields to add
@@ -55,9 +52,6 @@ class GeoFirestore {
   /// Removes the [location] of a document for the given [documentID].
   ///
   Future<dynamic> removeLocation(String documentID, GeoPoint location) async {
-    if (documentID == null) {
-      throw FormatException('Document ID is null');
-    }
     //Get the DocumentReference for this documentID
     var docRef = this.collectionReference.doc(documentID);
     //Create a Map with the fields to add
@@ -71,7 +65,7 @@ class GeoFirestore {
   ///
   /// Gets the current location of a document for the given [documentID].
   ///
-  Future<GeoPoint> getLocation(String documentID) async {
+  Future<GeoPoint?> getLocation(String documentID) async {
     final snapshot = await this.collectionReference.doc(documentID).get();
     final geoPoint = getLocationValue(snapshot);
     return geoPoint;
@@ -103,15 +97,15 @@ class GeoFirestore {
       snapshots.forEach((snapshot) {
         snapshot.docs.forEach((doc) {
           if (addDistance || exact) {
-            final latLng = doc.data()['l'];
+            final latLng = doc.data()?['l'];
             final distance = GeoUtils.distance(center, GeoPoint(latLng[0], latLng[1]));
             if (exact) {
               if (distance <= radius) {
-                doc.data()['distance'] = distance;
+                doc.data()?['distance'] = distance;
                 documents.add(doc);
               }
             } else {
-              doc.data()['distance'] = distance;
+              doc.data()?['distance'] = distance;
               documents.add(doc);
             }
           } else {

@@ -8,8 +8,8 @@ import 'package:geo_firestore_flutter/src/geo_hash.dart';
 import 'package:geo_firestore_flutter/src/geo_utils.dart';
 
 class GeoHashQuery {
-  final String startValue;
-  final String endValue;
+  final String? startValue;
+  final String? endValue;
 
   GeoHashQuery({this.startValue, this.endValue});
 
@@ -117,8 +117,8 @@ class GeoHashQuery {
     // Join queries
     bool didJoin;
     do {
-      GeoHashQuery query1;
-      GeoHashQuery query2;
+      GeoHashQuery? query1;
+      GeoHashQuery? query2;
       for (GeoHashQuery query in queries) {
         for (GeoHashQuery other in queries) {
           if (query != other && query._canJoinWith(other)) {
@@ -139,13 +139,13 @@ class GeoHashQuery {
   }
 
   bool _isPrefix(GeoHashQuery other) =>
-      (other.endValue.compareTo(this.startValue)) >= 0 &&
-      (other.startValue.compareTo(this.startValue) < 0) &&
-      (other.endValue.compareTo(this.endValue) < 0);
+      (other.endValue!.compareTo(this.startValue!)) >= 0 &&
+      (other.startValue!.compareTo(this.startValue!) < 0) &&
+      (other.endValue!.compareTo(this.endValue!) < 0);
 
   bool _isSuperQuery(GeoHashQuery other) {
-    return other.startValue.compareTo(this.startValue) <= 0 &&
-        other.endValue.compareTo(endValue) >= 0;
+    return other.startValue!.compareTo(this.startValue!) <= 0 &&
+        other.endValue!.compareTo(endValue!) >= 0;
   }
 
   bool _canJoinWith(GeoHashQuery other) =>
@@ -179,8 +179,8 @@ class GeoHashQuery {
   }
 
   bool containsGeoHash(String hash) {
-    return this.startValue.compareTo(hash) <= 0 &&
-        this.endValue.compareTo(hash) > 0;
+    return this.startValue!.compareTo(hash) <= 0 &&
+        this.endValue!.compareTo(hash) > 0;
   }
 
   bool operator ==(dynamic other) {
