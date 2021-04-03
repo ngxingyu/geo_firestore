@@ -11,10 +11,7 @@ class GeoUtils {
   /// returns [true] if these are valid geo coordinates
   ///
   static bool coordinatesValid(double latitude, double longitude) {
-    return (latitude >= -90 &&
-        latitude <= 90 &&
-        longitude >= -180 &&
-        longitude <= 180);
+    return (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180);
   }
 
   ///
@@ -24,10 +21,7 @@ class GeoUtils {
   /// returns [true] if these are valid geo coordinates
   ///
   static bool geoPointValid(GeoPoint point) {
-    return (point.latitude >= -90 &&
-        point.latitude <= 90 &&
-        point.longitude >= -180 &&
-        point.longitude <= 180);
+    return (point.latitude >= -90 && point.latitude <= 90 && point.longitude >= -180 && point.longitude <= 180);
   }
 
   ///
@@ -84,19 +78,15 @@ class GeoUtils {
     final lat2 = degreesToRadians(p2.latitude);
 
     final r = 6378.137; // WGS84 major axis
-    double c = 2 *
-        asin(sqrt(pow(sin(dlat / 2), 2) +
-            cos(lat1) * cos(lat2) * pow(sin(dlon / 2), 2)));
+    double c = 2 * asin(sqrt(pow(sin(dlat / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(dlon / 2), 2)));
     return r * c;
   }
 
-  static double distanceToLatitudeDegrees(double distance) =>
-      distance / METERS_PER_DEGREE_LATITUDE;
+  static double distanceToLatitudeDegrees(double distance) => distance / METERS_PER_DEGREE_LATITUDE;
 
   static double capRadius(double radius) {
     if (radius > MAX_SUPPORTED_RADIUS) {
-      print(
-          "The radius is bigger than $MAX_SUPPORTED_RADIUS and hence we'll use that value");
+      print("The radius is bigger than $MAX_SUPPORTED_RADIUS and hence we'll use that value");
       return MAX_SUPPORTED_RADIUS.toDouble();
     }
     return radius;
