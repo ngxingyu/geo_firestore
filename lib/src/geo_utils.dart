@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show GeoPoint;
 import 'package:geo_firestore_flutter/src/geo_constants.dart';
 
 class GeoUtils {
