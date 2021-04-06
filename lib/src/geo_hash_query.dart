@@ -1,11 +1,10 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geo_firestore_flutter/src/base32_utils.dart';
 import 'package:geo_firestore_flutter/src/geo_constants.dart';
-import 'package:geo_firestore_flutter/src/geo_firestore_flutter.dart';
-import 'package:geo_firestore_flutter/src/geo_hash.dart';
 import 'package:geo_firestore_flutter/src/geo_utils.dart';
+
+import 'geo_point.dart';
 
 class GeoHashQuery {
   final String? startValue;
@@ -14,8 +13,7 @@ class GeoHashQuery {
   GeoHashQuery({this.startValue, this.endValue});
 
   static double bitsLatitudeForResolution(double resolution) {
-    return min(log(EARTH_MERIDIONAL_CIRCUMFERENCE / 2 / resolution) / log(2.0),
-        GeoHash.MAX_PRECISION_BITS.toDouble());
+    return min(log(EARTH_MERIDIONAL_CIRCUMFERENCE / 2 / resolution) / log(2.0), GeoUtils.MAX_PRECISION_BITS.toDouble());
   }
 
   static double bitsLongitudeForResolution(double resolution, double latitude) {
@@ -28,81 +26,53 @@ class GeoHashQuery {
     final latitudeNorth = min(90.0, location.latitude + latitudeDegreesDelta);
     final latitudeSouth = max(-90.0, location.latitude - latitudeDegreesDelta);
     final bitsLatitude = (bitsLatitudeForResolution(size).floor() * 2).toInt();
-    final bitsLongitudeNorth =
-        (bitsLongitudeForResolution(size, latitudeNorth).floor() * 2 - 1)
-            .toInt();
-    final bitsLongitudeSouth =
-        (bitsLongitudeForResolution(size, latitudeSouth).floor() * 2 - 1)
-            .toInt();
+    final bitsLongitudeNorth = (bitsLongitudeForResolution(size, latitudeNorth).floor() * 2 - 1).toInt();
+    final bitsLongitudeSouth = (bitsLongitudeForResolution(size, latitudeSouth).floor() * 2 - 1).toInt();
     return min(bitsLatitude, min(bitsLongitudeNorth, bitsLongitudeSouth));
   }
 
   static GeoHashQuery queryForGeoHash(String hash, int bits) {
-    final precision =
-        (bits.toDouble() / Base32Utils.BITS_PER_BASE32_CHAR).ceil().toInt();
+    final precision = (bits.toDouble() / Base32Utils.BITS_PER_BASE32_CHAR).ceil().toInt();
     if (hash.length < precision) {
       return GeoHashQuery(startValue: hash, endValue: '$hash~');
     }
     hash = hash.substring(0, precision);
     final base = hash.substring(0, hash.length - 1);
     final lastValue = Base32Utils.base32CharToValue(hash[hash.length - 1]);
-    final significantBits =
-        bits - (base.length * Base32Utils.BITS_PER_BASE32_CHAR);
+    final significantBits = bits - (base.length * Base32Utils.BITS_PER_BASE32_CHAR);
     final unusedBits = Base32Utils.BITS_PER_BASE32_CHAR - significantBits;
     // delete unused bits
     final startValue = (lastValue >> unusedBits) << unusedBits;
     final endValue = startValue + (1 << unusedBits);
     final startHash = base + Base32Utils.valueToBase32Char(startValue);
-    final endHash = (endValue > 31)
-        ? '$base~'
-        : base + Base32Utils.valueToBase32Char(endValue);
+    final endHash = (endValue > 31) ? '$base~' : base + Base32Utils.valueToBase32Char(endValue);
     return GeoHashQuery(startValue: startHash, endValue: endHash);
   }
 
   static Set<GeoHashQuery> queriesAtLocation(GeoPoint location, double radius) {
     final queryBits = max(1, bitsForBoundingBox(location, radius));
-    final geoHashPrecision =
-        (queryBits.toDouble() / Base32Utils.BITS_PER_BASE32_CHAR)
-            .ceil()
-            .toInt();
+    final geoHashPrecision = (queryBits.toDouble() / Base32Utils.BITS_PER_BASE32_CHAR).ceil().toInt();
 
     final latitude = location.latitude;
     final longitude = location.longitude;
     final latitudeDegrees = radius / METERS_PER_DEGREE_LATITUDE;
     final latitudeNorth = min(90.0, latitude + latitudeDegrees);
     final latitudeSouth = max(-90.0, latitude - latitudeDegrees);
-    final longitudeDeltaNorth =
-        GeoUtils.distanceToLongitudeDegrees(radius, latitudeNorth);
-    final longitudeDeltaSouth =
-        GeoUtils.distanceToLongitudeDegrees(radius, latitudeSouth);
+    final longitudeDeltaNorth = GeoUtils.distanceToLongitudeDegrees(radius, latitudeNorth);
+    final longitudeDeltaSouth = GeoUtils.distanceToLongitudeDegrees(radius, latitudeSouth);
     final longitudeDelta = max(longitudeDeltaNorth, longitudeDeltaSouth);
 
     final queries = Set<GeoHashQuery>();
 
-    final geoHash =
-        GeoHash.encode(latitude, longitude, precision: geoHashPrecision);
-    final geoHashW = GeoHash.encode(
-        latitude, GeoUtils.wrapLongitude(longitude - longitudeDelta),
-        precision: geoHashPrecision);
-    final geoHashE = GeoHash.encode(
-        latitude, GeoUtils.wrapLongitude(longitude + longitudeDelta),
-        precision: geoHashPrecision);
-    final geoHashN =
-        GeoHash.encode(latitudeNorth, longitude, precision: geoHashPrecision);
-    final geoHashNW = GeoHash.encode(
-        latitudeNorth, GeoUtils.wrapLongitude(longitude - longitudeDelta),
-        precision: geoHashPrecision);
-    final geoHashNE = GeoHash.encode(
-        latitudeNorth, GeoUtils.wrapLongitude(longitude + longitudeDelta),
-        precision: geoHashPrecision);
-    final geoHashS =
-        GeoHash.encode(latitudeSouth, longitude, precision: geoHashPrecision);
-    final geoHashSW = GeoHash.encode(
-        latitudeSouth, GeoUtils.wrapLongitude(longitude - longitudeDelta),
-        precision: geoHashPrecision);
-    final geoHashSE = GeoHash.encode(
-        latitudeSouth, GeoUtils.wrapLongitude(longitude + longitudeDelta),
-        precision: geoHashPrecision);
+    final geoHash = GeoUtils.encode(latitude, longitude, precision: geoHashPrecision);
+    final geoHashW = GeoUtils.encode(latitude, GeoUtils.wrapLongitude(longitude - longitudeDelta), precision: geoHashPrecision);
+    final geoHashE = GeoUtils.encode(latitude, GeoUtils.wrapLongitude(longitude + longitudeDelta), precision: geoHashPrecision);
+    final geoHashN = GeoUtils.encode(latitudeNorth, longitude, precision: geoHashPrecision);
+    final geoHashNW = GeoUtils.encode(latitudeNorth, GeoUtils.wrapLongitude(longitude - longitudeDelta), precision: geoHashPrecision);
+    final geoHashNE = GeoUtils.encode(latitudeNorth, GeoUtils.wrapLongitude(longitude + longitudeDelta), precision: geoHashPrecision);
+    final geoHashS = GeoUtils.encode(latitudeSouth, longitude, precision: geoHashPrecision);
+    final geoHashSW = GeoUtils.encode(latitudeSouth, GeoUtils.wrapLongitude(longitude - longitudeDelta), precision: geoHashPrecision);
+    final geoHashSE = GeoUtils.encode(latitudeSouth, GeoUtils.wrapLongitude(longitude + longitudeDelta), precision: geoHashPrecision);
 
     queries.add(queryForGeoHash(geoHash, queryBits));
     queries.add(queryForGeoHash(geoHashE, queryBits));
@@ -144,24 +114,17 @@ class GeoHashQuery {
       (other.endValue!.compareTo(this.endValue!) < 0);
 
   bool _isSuperQuery(GeoHashQuery other) {
-    return other.startValue!.compareTo(this.startValue!) <= 0 &&
-        other.endValue!.compareTo(endValue!) >= 0;
+    return other.startValue!.compareTo(this.startValue!) <= 0 && other.endValue!.compareTo(endValue!) >= 0;
   }
 
-  bool _canJoinWith(GeoHashQuery other) =>
-      this._isPrefix(other) ||
-      other._isPrefix(this) ||
-      this._isSuperQuery(other) ||
-      other._isSuperQuery(this);
+  bool _canJoinWith(GeoHashQuery other) => this._isPrefix(other) || other._isPrefix(this) || this._isSuperQuery(other) || other._isSuperQuery(this);
 
   GeoHashQuery _joinWith(GeoHashQuery other) {
     if (other._isPrefix(this)) {
-      return GeoHashQuery(
-          startValue: this.startValue, endValue: other.endValue);
+      return GeoHashQuery(startValue: this.startValue, endValue: other.endValue);
     }
     if (this._isPrefix(other)) {
-      return GeoHashQuery(
-          startValue: other.startValue, endValue: this.endValue);
+      return GeoHashQuery(startValue: other.startValue, endValue: this.endValue);
     }
     if (this._isSuperQuery(other)) {
       return other;
@@ -172,25 +135,18 @@ class GeoHashQuery {
     throw FormatException("Can't join these two queries: $this, $other");
   }
 
-  Query createFirestoreQuery(GeoFirestore geoFirestore) {
-    return geoFirestore.collectionReference
-        .orderBy('g')
-        .startAt([this.startValue]).endAt([this.endValue]);
-  }
-
   bool containsGeoHash(String hash) {
-    return this.startValue!.compareTo(hash) <= 0 &&
-        this.endValue!.compareTo(hash) > 0;
+    return this.startValue!.compareTo(hash) <= 0 && this.endValue!.compareTo(hash) > 0;
   }
 
-  bool operator ==(dynamic other) {
-    if (other == null || !(other is GeoHashQuery)) return false;
-    if (endValue != other.endValue || startValue != other.startValue)
-      return false;
-    return true;
-  }
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      other is GeoHashQuery && runtimeType == other.runtimeType && endValue == other.endValue && startValue == other.startValue;
 
+  @override
   int get hashCode => (31 * startValue.hashCode + endValue.hashCode);
 
+  @override
   toString() => "GeoHashQuery(startValue='$startValue', endValue='$endValue')";
 }

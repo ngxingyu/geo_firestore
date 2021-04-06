@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide GeoPoint;
 import 'package:geo_firestore_flutter/src/geo_hash_query.dart';
-import 'package:geo_firestore_flutter/src/geo_hash.dart';
 import 'package:geo_firestore_flutter/src/geo_utils.dart';
+
+import 'geo_point.dart';
 
 ///
 /// A GeoFirestore instance is used to store and query geo location data in Firestore.
@@ -39,7 +40,7 @@ class GeoFirestore {
   /// Sets the [location] of a document for the given [documentID].
   Future<dynamic> setLocation(String documentID, GeoPoint location) async {
     var docRef = this.collectionReference.doc(documentID);
-    var geoHash = GeoHash.encode(location.latitude, location.longitude);
+    var geoHash = GeoUtils.encode(location.latitude, location.longitude);
     // Create a Map with the fields to add
     var updates = Map<String, dynamic>();
     updates['g'] = geoHash;
@@ -86,9 +87,7 @@ class GeoFirestore {
     bool addDistance = true,
   }) async {
     // Get the futures from Firebase Queries generated from GeoHashQueries
-    final futures = GeoHashQuery.queriesAtLocation(
-            center, GeoUtils.capRadius(radius) * 1000)
-        .map((query) => query.createFirestoreQuery(this).get());
+    final futures = GeoHashQuery.queriesAtLocation(center, GeoUtils.capRadius(radius) * 1000).map((query) => createFirestoreQuery(this, query).get());
 
     // Await the completion of all the futures
     try {
@@ -118,5 +117,9 @@ class GeoFirestore {
       print('Failed retrieving data for geo query: ' + e.toString());
       throw e;
     }
+  }
+
+  static Query createFirestoreQuery(GeoFirestore geoFirestore, GeoHashQuery query) {
+    return geoFirestore.collectionReference.orderBy('g').startAt([query.startValue]).endAt([query.endValue]);
   }
 }

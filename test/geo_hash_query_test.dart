@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geo_firestore_flutter/src/geo_hash_query.dart';
+import 'package:geo_firestore_flutter/src/geo_point.dart';
 
 void main() {
   var test1 = Set<GeoHashQuery>();
