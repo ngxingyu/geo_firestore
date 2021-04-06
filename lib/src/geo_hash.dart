@@ -16,6 +16,13 @@ class GeoHash {
     _geolocation = GeoUtils.decode(geohash);
   }
 
+  /// Constructor given Longitude and Latitude
+  GeoHash.fromDecimalDegrees(double latitude, double longitude, {int codeLength = 10}) {
+    _geolocation = GeoPoint(latitude, longitude);
+    _geohash = GeoUtils.encode(latitude, longitude, precision: codeLength);
+    _extents = GeoUtils.getExtents(_geohash);
+  }
+
   /// Returns the double longitude with an optional decimal accuracy
   double longitude({int? decimalAccuracy}) {
     if (decimalAccuracy == null) return _geolocation.longitude;

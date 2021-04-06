@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart' hide GeoPoint;
-import 'package:geo_firestore_flutter/src/geo_hash_query.dart';
-import 'package:geo_firestore_flutter/src/geo_utils.dart';
+import 'geo_hash_query.dart';
+import 'geo_utils.dart';
 
 import 'geo_point.dart';
 
-///
 /// A GeoFirestore instance is used to store and query geo location data in Firestore.
-///
 class GeoFirestore {
   late CollectionReference collectionReference;
 
@@ -16,18 +14,15 @@ class GeoFirestore {
     this.collectionReference = collectionReference;
   }
 
-  ///
   /// Build a GeoPoint from a [documentSnapshot]
-  ///
   static GeoPoint? getLocationValue(DocumentSnapshot documentSnapshot) {
     try {
       final data = documentSnapshot.data();
-      if (data != null && data['l'] != null) {
-        final location = data['l'];
-        final latitude = location[0];
-        final longitude = location[1];
+      if (data != null && data['lat'] != null && data['lng'] != null) {
+        final latitude = data['lat'];
+        final longitude = data['lng'];
         if (GeoUtils.coordinatesValid(latitude, longitude)) {
-          return location;
+          return GeoPoint(latitude, longitude);
         }
       }
       return null;
@@ -43,36 +38,33 @@ class GeoFirestore {
     var geoHash = GeoUtils.encode(location.latitude, location.longitude);
     // Create a Map with the fields to add
     var updates = Map<String, dynamic>();
-    updates['g'] = geoHash;
-    updates['l'] = [location.latitude, location.longitude];
+    updates['geohash'] = geoHash;
+    updates['lat'] = location.latitude;
+    updates['lng'] = location.longitude;
     // Update the DocumentReference with the location data
     return await docRef.set(updates, SetOptions(merge: true));
   }
 
-  ///
   /// Removes the [location] of a document for the given [documentID].
-  ///
   Future<dynamic> removeLocation(String documentID, GeoPoint location) async {
     //Get the DocumentReference for this documentID
     var docRef = this.collectionReference.doc(documentID);
     //Create a Map with the fields to add
     var updates = Map<String, dynamic>();
-    updates['g'] = null;
-    updates['l'] = null;
+    updates['geohash'] = null;
+    updates['lat'] = null;
+    updates['lng'] = null;
     //Update the DocumentReference with the location data
     await docRef.set(updates, SetOptions(merge: true));
   }
 
-  ///
   /// Gets the current location of a document for the given [documentID].
-  ///
   Future<GeoPoint?> getLocation(String documentID) async {
     final snapshot = await this.collectionReference.doc(documentID).get();
     final geoPoint = getLocationValue(snapshot);
     return geoPoint;
   }
 
-  ///
   /// Returns the documents centered at a given location and with the given radius.
   /// [center]      The center of the query
   /// [radius]      The radius of the query, in kilometers. The maximum radius that is
@@ -96,8 +88,9 @@ class GeoFirestore {
       snapshots.forEach((snapshot) {
         snapshot.docs.forEach((doc) {
           if (addDistance || exact) {
-            final latLng = doc.data()?['l'];
-            final distance = GeoUtils.distance(center, GeoPoint(latLng[0], latLng[1]));
+            final lat = doc.data()?['lat'];
+            final lng = doc.data()?['lng'];
+            final distance = GeoUtils.distance(center, GeoPoint(lat, lng));
             if (exact) {
               if (distance <= radius) {
                 doc.data()?['distance'] = distance;
@@ -120,6 +113,6 @@ class GeoFirestore {
   }
 
   static Query createFirestoreQuery(GeoFirestore geoFirestore, GeoHashQuery query) {
-    return geoFirestore.collectionReference.orderBy('g').startAt([query.startValue]).endAt([query.endValue]);
+    return geoFirestore.collectionReference.orderBy('geohash').startAt([query.startValue]).endAt([query.endValue]);
   }
 }
