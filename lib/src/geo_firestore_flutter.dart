@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart' hide GeoPoint;
-import 'package:geo_firestore_flutter/src/geo_hash_query.dart';
-import 'package:geo_firestore_flutter/src/geo_utils.dart';
+import 'geo_hash_query.dart';
+import 'geo_utils.dart';
 
 import 'geo_point.dart';
 

@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:geo_firestore_flutter/src/base32_utils.dart';
-import 'package:geo_firestore_flutter/src/geo_constants.dart';
-import 'package:geo_firestore_flutter/src/geo_utils.dart';
+import 'base32_utils.dart';
+import 'geo_constants.dart';
+import 'geo_utils.dart';
 
 import 'geo_point.dart';
 
