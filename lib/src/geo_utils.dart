@@ -144,7 +144,7 @@ class GeoUtils {
       final longitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
-      return Rectangle<double>(longitude, latitude, width.toDouble(), height.toDouble());
+      return Rectangle<double>(longitude, latitude - height, width.toDouble(), height.toDouble());
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
