@@ -1,6 +1,6 @@
 name: geo_firestore_flutter
 description: GeoFirestore for Flutter to do location based queries with Firestore
-homepage: https://github.com/percula/geo_firestore
+homepage: https://github.com/ngxingyu/geo_firestore
 version: 0.1.0
 
 environment:
