@@ -7,7 +7,7 @@ void main() {
   test1.add(GeoHashQuery(startValue: 'w21zkv', endValue: 'w21zk~'));
   print(test1);
   print(GeoHashQuery.queriesAtLocation(
-    GeoPoint(1.3097521662712097, 103.91663610935211),
+    GeoPoint(1.34309745890513, 103.856225857985),
     400,
   ));
 }

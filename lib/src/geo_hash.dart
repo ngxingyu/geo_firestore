@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'geo_point.dart';
 import 'geo_utils.dart';
@@ -40,4 +41,13 @@ class GeoHash {
   String get geohash => _geohash;
   Rectangle<double> get extents => _extents;
   GeoPoint get geolocation => _geolocation;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is GeoHash && runtimeType == other.runtimeType && _geohash == other.geohash;
+
+  @override
+  int get hashCode => runtimeType.hashCode ^ hashValues(latitude, longitude);
+
+  @override
+  String toString() => "GeoHash(latitude=$latitude,longitude=$longitude,hash=$geohash)";
 }

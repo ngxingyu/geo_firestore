@@ -31,6 +31,7 @@ void main() {
     expect(() => GeoUtils.encode(45, -181), throwsArgumentError);
     expect(() => GeoUtils.encode(95, 45), throwsArgumentError);
     expect(GeoHash("0").latitude(decimalAccuracy: 2), -67.50);
+    expect(GeoHash("0"), GeoHash("0"));
     //endregion
   });
 }
