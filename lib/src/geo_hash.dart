@@ -38,6 +38,8 @@ class GeoHash {
       return double.parse(_geolocation.latitude.toStringAsFixed(decimalAccuracy));
   }
 
+  double distance(GeoHash other) => GeoUtils.distance(_geolocation, other.geolocation);
+
   String get geohash => _geohash;
   Rectangle<double> get extents => _extents;
   GeoPoint get geolocation => _geolocation;
