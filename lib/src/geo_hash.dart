@@ -51,5 +51,5 @@ class GeoHash {
   int get hashCode => runtimeType.hashCode ^ hashValues(latitude, longitude);
 
   @override
-  String toString() => "GeoHash(latitude=$latitude,longitude=$longitude,hash=$geohash)";
+  String toString() => "GeoHash(latitude=${_geolocation.latitude},longitude=${_geolocation.longitude},hash=$geohash)";
 }
