@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'geo_hash_query.dart';
 import 'geo_point.dart';
 import 'geo_utils.dart';
 
@@ -43,6 +44,7 @@ class GeoHash {
   String get geohash => _geohash;
   Rectangle<double> get extents => _extents;
   GeoPoint get geolocation => _geolocation;
+  Set<GeoHashQuery> getQueries(double radius) => GeoHashQuery.queriesAtLocation(_geolocation, radius);
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is GeoHash && runtimeType == other.runtimeType && _geohash == other.geohash;

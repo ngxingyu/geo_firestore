@@ -33,6 +33,7 @@ void main() {
     expect(GeoHash("0").latitude(decimalAccuracy: 2), -67.50);
     expect(GeoHash("0"), GeoHash("0"));
     expect(GeoHash.fromDecimalDegrees(0, 0).toString(), "GeoHash(latitude=0.0,longitude=0.0,hash=s000000000)");
+    print(GeoHash("0").getQueries(1));
     //endregion
   });
 }
