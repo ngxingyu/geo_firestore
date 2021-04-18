@@ -79,7 +79,8 @@ class GeoFirestore {
     bool addDistance = true,
   }) async {
     // Get the futures from Firebase Queries generated from GeoHashQueries
-    final futures = GeoHashQuery.queriesAtLocation(center, GeoUtils.capRadius(radius) * 1000).map((query) => createFirestoreQuery(this, query).get());
+    final futures = GeoHashQuery.queriesAtLocation(center, GeoUtils.capRadius(radius) * 1000)
+        .map((query) => createFirestoreQuery(this.collectionReference, query).get());
 
     // Await the completion of all the futures
     try {
@@ -112,7 +113,11 @@ class GeoFirestore {
     }
   }
 
-  static Query createFirestoreQuery(GeoFirestore geoFirestore, GeoHashQuery query) {
-    return geoFirestore.collectionReference.orderBy('geohash').startAt([query.startValue]).endAt([query.endValue]);
+  static Query createFirestoreQuery(CollectionReference collectionReference, GeoHashQuery query) {
+    return collectionReference.orderBy('geohash').startAt([query.startValue]).endAt([query.endValue]);
+  }
+
+  static List<Query> createFirestoreQueries(CollectionReference collectionReference, List<GeoHashQuery> queries) {
+    return queries.map<Query>((query) => createFirestoreQuery(collectionReference, query)).toList();
   }
 }
