@@ -113,11 +113,11 @@ class GeoFirestore {
     }
   }
 
-  static Query createFirestoreQuery(CollectionReference collectionReference, GeoHashQuery query) {
+  static Query createFirestoreQuery(Query collectionReference, GeoHashQuery query) {
     return collectionReference.orderBy('geohash').startAt([query.startValue]).endAt([query.endValue]);
   }
 
-  static List<Query> createFirestoreQueries(CollectionReference collectionReference, List<GeoHashQuery> queries) {
+  static List<Query> createFirestoreQueries(Query collectionReference, List<GeoHashQuery> queries) {
     return queries.map<Query>((query) => createFirestoreQuery(collectionReference, query)).toList();
   }
 }
