@@ -8,14 +8,14 @@ import 'geo_point.dart';
 
 /// A GeoFirestore instance is used to store and query geo location data in Firestore.
 class GeoFirestore {
-  late CollectionReference collectionReference;
+  late CollectionReference<Map<String, dynamic>> collectionReference;
 
-  GeoFirestore(CollectionReference collectionReference) {
+  GeoFirestore(CollectionReference<Map<String, dynamic>> collectionReference) {
     this.collectionReference = collectionReference;
   }
 
   /// Build a GeoPoint from a [documentSnapshot]
-  static GeoPoint? getLocationValue(DocumentSnapshot documentSnapshot) {
+  static GeoPoint? getLocationValue(DocumentSnapshot<Map<String, dynamic>> documentSnapshot) {
     try {
       final data = documentSnapshot.data();
       if (data != null && data['lat'] != null && data['lng'] != null) {
@@ -84,7 +84,7 @@ class GeoFirestore {
 
     // Await the completion of all the futures
     try {
-      List<DocumentSnapshot> documents = [];
+      List<DocumentSnapshot<Map<String, dynamic>>> documents = [];
       final snapshots = await Future.wait(futures);
       snapshots.forEach((snapshot) {
         snapshot.docs.forEach((doc) {
@@ -113,11 +113,15 @@ class GeoFirestore {
     }
   }
 
-  static Query createFirestoreQuery(Query collectionReference, GeoHashQuery query) {
+  static Query<Map<String, dynamic>> createFirestoreQuery(
+      Query<Map<String, dynamic>> collectionReference, GeoHashQuery query) {
     return collectionReference.orderBy('geohash').startAt([query.startValue]).endAt([query.endValue]);
   }
 
-  static List<Query> createFirestoreQueries(Query collectionReference, List<GeoHashQuery> queries) {
-    return queries.map<Query>((query) => createFirestoreQuery(collectionReference, query)).toList();
+  static List<Query<Map<String, dynamic>>> createFirestoreQueries(
+      Query<Map<String, dynamic>> collectionReference, List<GeoHashQuery> queries) {
+    return queries
+        .map<Query<Map<String, dynamic>>>((query) => createFirestoreQuery(collectionReference, query))
+        .toList();
   }
 }
